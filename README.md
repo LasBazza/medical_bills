@@ -9,6 +9,7 @@
 - Python 3.10
 - Django 4.0
 - Django Rest Framework 3.13.1
+- openpyxl
 - PostgreSQL
 - Docker
 - Nginx
