@@ -9,7 +9,14 @@
 - Python 3.10
 - Django 4.0
 - Django Rest Framework 3.13.1
-- SQLite
+- PostgreSQL
+- Docker
+- Nginx
+
+#### Линтеры
+
+- flake8
+- isort
 
 ## Запуск проекта
 1. Склонировать проект
