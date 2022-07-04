@@ -12,6 +12,7 @@
 - PostgreSQL
 - Docker
 - Nginx
+- gunicorn
 
 #### Линтеры
 
