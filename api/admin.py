@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Bill, Client, Organization
+from .models import Bill, Client, ColumnNames, Organization
 
 
 @admin.register(Client)
@@ -24,8 +24,22 @@ class BillAdmin(admin.ModelAdmin):
         'sum', 'date',
         'service',
         'client_name',
-        'client_org',
+        'organization',
         'service_class',
         'service_name',
         'fraud_score'
+    )
+
+
+@admin.register(ColumnNames)
+class ColumNamesAdmin(admin.ModelAdmin):
+
+    list_display = (
+        'client',
+        'client_name_column',
+        'organization_column',
+        'number_column',
+        'sum_column',
+        'date_column',
+        'service_column',
     )

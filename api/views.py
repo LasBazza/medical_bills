@@ -9,11 +9,11 @@ from rest_framework.views import APIView
 
 from .data_handlers import (bills_annotate, evaluate_fraud_weight,
                             format_address)
-from .models import Bill, Client, Organization
-from .serializers import BillSerializer, ClientSerializer
-from .utils import ExcelParser
+from .models import Bill, Client, ColumnNames, Organization
+from .serializers import BillSerializer, ClientSerializer, ColumnNamesSerializer
+from .utils import ClientOrganizationExcelParser
 
-parser = ExcelParser()
+parser = ClientOrganizationExcelParser()
 
 
 class BaseUploadView(APIView):
@@ -91,32 +91,8 @@ class DataUploadView(BaseUploadView):
 
     def _upload_biils(self, file):
         """Parsing and saving bills data"""
-        try:
-            bill_dicts = parser.parse_excel(file, 'Лист1')
-        except KeyError:
-            raise ParseError('wrong file or sheet')
 
-        bills_annotate(bill_dicts)
-
-        client_queryset = Client.objects.all()
-        organization_queryset = Organization.objects.all()
-
-        # for mapping client and organization FK field in below bill bulk_create
-        client_map = dict((client.name, client) for client in client_queryset)
-        organization_map = dict((organization.name, organization) for organization in organization_queryset)
-
-        bill_list = []
-        for bill in bill_dicts:
-            bill['client_name'] = client_map[bill['client_name']]
-            bill['client_org'] = organization_map[bill['client_org']]
-            bill_list.append(Bill(**bill))
-
-        try:
-            Bill.objects.bulk_create(bill_list)
-        except IntegrityError:
-            raise ValidationError('bill numbers and organization names are not unique together')
-
-        evaluate_fraud_weight()
+        # not implemented
 
 
 class ClientViewSet(viewsets.ReadOnlyModelViewSet):
@@ -132,4 +108,11 @@ class BillViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = BillSerializer
     queryset = Bill.objects.all()
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ('client_name', 'client_org')
+    filterset_fields = ('client_name', 'organization')
+
+
+class ColumnNamesViewSet(viewsets.ModelViewSet):
+    """Viewset for CRUD ColumnNames"""
+
+    serializer_class = ColumnNamesSerializer
+    queryset = ColumnNames.objects.all()

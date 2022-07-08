@@ -3,8 +3,11 @@ from typing import Any
 from openpyxl import load_workbook
 from openpyxl.worksheet.worksheet import Worksheet
 
+from .models import ColumnNames
+from .exceptions import UnknownClientColumns
 
-class ExcelParser:
+
+class ClientOrganizationExcelParser:
 
     def parse_excel(self, file: str, sheet_title: str) -> list[dict]:
         """Return list of instance dictionaries from specified excel sheet"""
@@ -19,15 +22,7 @@ class ExcelParser:
             item = dict()
             for idx in range(len(row)):
                 if row[idx] is not None:
-
-                    if field_names[idx] == 'number':
-                        value = self._normalize_bill_number(row[idx])
-                    elif field_names[idx] == 'sum':
-                        value = self._normalize_sum(row[idx])
-                    else:
-                        value = row[idx]
-
-                    item[field_names[idx]] = value
+                    item[field_names[idx]] = row[idx]
             if item:
                 items.append(item)
 
@@ -40,14 +35,36 @@ class ExcelParser:
         field_names = []
         for row in sheet.iter_rows(max_row=1, values_only=True):
             for cell in row:
-
                 if cell is not None:
-                    if cell == '№':
-                        field_names.append('number')
-                    else:
-                        field_names.append(cell)
+                    field_names.append(cell)
 
         return field_names
+
+
+class BillsParser:
+
+    def parse_excel(self, file: str, sheet_title: str):
+
+        wb = load_workbook(filename=file)
+        sheet = wb[sheet_title]
+
+        client_columns = self._recognize_client(sheet)
+
+        # following steps of parsing are not implemented
+
+    @staticmethod
+    def _recognize_client(sheet):
+        client_names_columns = []
+        for instance in ColumnNames.objects.all():
+            client_names_columns.append(instance.client_name_column)
+
+        for row in sheet.iter_rows(max_row=1, values_only=True):
+            for cell in row:
+                if cell is not None:
+                    if cell in client_names_columns:
+                        return ColumnNames.objects.get(client_name_column=cell)
+                    else:
+                        raise UnknownClientColumns
 
     @staticmethod
     def _normalize_bill_number(value: Any) -> int:
@@ -56,3 +73,4 @@ class ExcelParser:
     @staticmethod
     def _normalize_sum(value: Any) -> float:
         return float(value)
+

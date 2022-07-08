@@ -31,6 +31,6 @@ def format_address(organizations: list[dict]) -> None:
 def evaluate_fraud_weight() -> None:
     organizations = Organization.objects.all()
     for organization in organizations:
-        fraud_number = Bill.objects.filter(client_org=organization, fraud_score__gte=0.9).count()
+        fraud_number = Bill.objects.filter(organization=organization, fraud_score__gte=0.9).count()
         organization.fraud_weight += fraud_number
         organization.save()

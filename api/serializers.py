@@ -1,7 +1,7 @@
 from django.db.models import Sum
 from rest_framework import serializers
 
-from .models import Bill, Client
+from .models import Bill, Client, ColumnNames
 
 
 class ClientSerializer(serializers.ModelSerializer):
@@ -23,4 +23,11 @@ class BillSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Bill
+        fields = '__all__'
+
+
+class ColumnNamesSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ColumnNames
         fields = '__all__'

@@ -45,15 +45,37 @@ class Bill(models.Model):
         verbose_name='Клиент',
         related_name='bills'
     )
-    client_org = models.ForeignKey(Organization, to_field='name', on_delete=models.CASCADE, verbose_name='Организация')
+    organization = models.ForeignKey(
+        Organization,
+        to_field='name',
+        on_delete=models.CASCADE,
+        verbose_name='Организация'
+    )
     fraud_score = models.FloatField('Оценка мошенничества')
     service_class = models.IntegerField('Номер класса услуги')
     service_name = models.CharField('Название класса услуги', max_length=200)
 
     class Meta:
-        unique_together = ['number', 'client_org']
+        unique_together = ['number', 'organization']
         verbose_name = 'Счет'
         verbose_name_plural = 'Счета'
 
     def __str__(self):
-        return f'{self.number} {self.client_org.name}'
+        return f'{self.number} {self.organization.name}'
+
+
+class ColumnNames(models.Model):
+    client = models.OneToOneField(Client, on_delete=models.CASCADE, verbose_name='Клиент')
+    client_name_column = models.CharField('Название колонки клиента', max_length=200)
+    organization_column = models.CharField('Название колонки организации', max_length=200)
+    number_column = models.CharField('Название колонки номера счета', max_length=200)
+    sum_column = models.CharField('Название колонки суммы', max_length=200)
+    date_column = models.CharField('Название колонки даты', max_length=200)
+    service_column = models.CharField('Название колонки услуги', max_length=200)
+
+    class Meta:
+        verbose_name = 'Название колонок'
+        verbose_name_plural = 'Названия колонок'
+
+    def __str__(self):
+        return f'Колоноки клиента {self.client}'
